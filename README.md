@@ -1,4 +1,8 @@
 # RAG: Latest trends
+###TODO
+```
+need to add paper links,SOTA
+```
 This repo is understand the latest trends of RAG and LLM
 ### Retrieval-Augmented Generation (RAG)
 
