@@ -6,35 +6,39 @@
 
 Retrieval-Augmented Generation (RAG) combines **retrieval from an external knowledge source** with **language-model generation**. Instead of asking a model to answer exclusively from information learned during training, a RAG system can retrieve potentially relevant evidence at inference time and use it to produce an answer.
 
-A typical pipeline follows:
+A typical RAG workflow has an **offline knowledge-preparation path** and an **online question-answering path**. The two meet at retrieval:
 
 ```text
-Documents / knowledge sources
-          |
-          v
-   Parse -> chunk -> index
-          |
-          v
-User question -> optional query rewriting / decomposition
-          |
-          v
-    Retrieve candidates
-          |
-          v
- Rerank / filter / compress
-          |
-          v
-  Assemble grounded context
-          |
-          v
-     Language model
-          |
-          v
- Answer + citations / evidence
-          |
-          v
- Evaluate retrieval and answer quality
+OFFLINE KNOWLEDGE PREPARATION                ONLINE QUESTION ANSWERING
+-----------------------------                --------------------------
+Documents / databases / graphs                 User question
+              |                                      |
+              v                                      v
+     Parse and normalize                     Optional rewrite / expand
+              |                                      |
+              v                                      |
+    Chunk or structure data                           |
+              |                                      |
+              v                                      v
+     Embed / build index ----------------> Retrieve candidates
+                                                     |
+                                                     v
+                                        Rerank / filter / compress
+                                                     |
+                                                     v
+                                         Assemble evidence context
+                                                     |
+                                                     v
+                                               Language model
+                                                     |
+                                                     v
+                                            Answer + attribution
+                                                     |
+                                                     v
+                                      Evaluate answer and retrieval
 ```
+
+The index is typically prepared or refreshed independently of each user query. Some systems retrieve iteratively, while adaptive or agentic systems may decide **when to retrieve again**, query additional sources, or call tools during answer generation.
 
 Retrieval **can improve access to current or domain-specific information**, but it does not automatically guarantee correctness. Success depends on document coverage, chunking, retrieval quality, evidence selection, model behavior, and the evaluation protocol.
 
@@ -50,6 +54,20 @@ Retrieval **can improve access to current or domain-specific information**, but 
 | Planning and tools | How should a system choose actions, tools, and multi-step evidence-gathering strategies? | Tools & Planning; Advanced Architectures |
 | Grounded generation | How should a model handle conflicting evidence and parametric knowledge? | Knowledge Conflicts & Factuality; Preference Alignment |
 | Quality and safety | How do we measure factuality, robustness, retrieval quality, security, and privacy? | Evaluation & Analysis; Security & Privacy |
+
+### Retrieval granularity and evidence types
+
+RAG systems can retrieve evidence at several levels: **document-level** (entire reports or files), **passage-level** (chunks or sentences), **graph-level** (entities, relations, paths, or subgraphs), and **multimodal** (images, tables, audio, or combinations). The unit of retrieval affects indexing, recall, attribution, latency, and context cost. These are complementary choices rather than mutually exclusive system types.
+
+### From naive to advanced and agentic RAG
+
+| Pattern | Typical behavior | Main research challenge |
+| --- | --- | --- |
+| Naive RAG | Retrieve once, concatenate evidence, generate an answer | Relevant retrieval and grounded generation |
+| Advanced RAG | Add query optimization, reranking, compression, self-critique, or specialized indexing | Choosing and integrating useful improvements |
+| Agentic RAG | Plan evidence-gathering steps, invoke tools, or choose retrieval actions dynamically | Control policies, reliable tool use, and bounded cost |
+
+These are broad architectural patterns, **not additional top-level bibliography categories**. In particular, iterative retrieval, adaptive retrieval, multi-hop reasoning, and tools/planning remain separate categories in the taxonomy below.
 
 ## 3. Research taxonomy: 5 parent groups, 15 categories
 
@@ -95,21 +113,23 @@ Be careful with results that compare systems using different retrieval corpora, 
 
 For systematic evaluation, distinguish **retrieval quality** (e.g., recall and ranking effectiveness), **answer quality** (correctness, faithfulness, and attribution), and **operational properties** (latency, token cost, robustness, and security). No single score captures all three.
 
-## 5. Using and maintaining this bibliography
+### Evaluation dimensions and metrics
 
-- **[README.md](README.md)**: browse papers using the five parent groups and 15 research categories.
-- **[`data/papers-backup.json`](data/papers-backup.json)**: preserve original paper occurrences for migration audits.
-- **[`data/papers.json`](data/papers.json)**: deduplicated paper records with category alignment and review metadata.
-- **[`data/alignment.csv`](data/alignment.csv)**: trace original entries to their new records, including duplicates.
-- **[`data/alignment-report.json`](data/alignment-report.json)**: review duplicates, unmapped occurrences, and unresolved metadata.
-- **[`scripts/validate_alignment.py`](scripts/validate_alignment.py)**: check migration consistency before publication.
+| Dimension | Example measurements | Interpretation |
+| --- | --- | --- |
+| Retrieval coverage | Recall@k, hit rate | Whether relevant evidence is present among retrieved candidates |
+| Ranking | MRR, nDCG@k | Whether relevant evidence is ranked highly |
+| Grounded generation | Answer correctness, faithfulness, citation attribution | Whether claims are correct and supported by retrieved sources |
+| Control behavior | Retrieval decisions, tool-call success, multi-step task completion | Whether an adaptive or agentic policy selects useful actions |
+| Operational performance | End-to-end latency (including P95), token usage, cost per query | Whether the system can meet deployment budgets |
+| Trustworthiness | Robustness to noise, prompt injection, poisoned documents, privacy leakage | Whether the system behaves reliably under adverse conditions |
 
-The migration files currently represent a **previously reconstructed 148-occurrence inventory**, not a freshly verified copy of GitHub `main`. Reconcile any more recent additions before replacing the public README. Original categories are historical provenance, not necessarily a final scientific judgment; cross-cutting papers can carry secondary labels and editorial review flags.
+Metrics must be defined with respect to the evaluation data. For example, **Recall@k** requires a definition of relevant passages, while **faithfulness** measures support from provided evidence and is not interchangeable with world-factual correctness. Use identical corpora, retrievers, generators, and token budgets for controlled comparisons, or document those differences explicitly.
 
-## 6. Suggested reading path
+## 5. Suggested reading path
 
 New to RAG? Start with **Naive RAG**, then study **Chunking/Indexing**, **Query Enhancement**, and **Context Optimization**. Next compare **Long Context** against retrieval-heavy approaches, then explore **Multi-Hop & Knowledge Graphs**, **Iterative Retrieval**, **Adaptive Retrieval**, and **Tools & Planning**. Finish with **Knowledge Conflicts & Factuality**, **Security & Privacy**, and **Evaluation & Analysis** to understand limitations and responsible deployment.
 
 ---
 
-*Scope: this is an orientation guide, not a claim that all listed papers or code repositories have been independently verified. See paper-level review status in the migration data.*
+*Scope: this is an orientation guide, not a claim that all listed papers or code repositories have been independently verified.*
