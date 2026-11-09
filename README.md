@@ -375,12 +375,3 @@ For an overview of RAG and a guide to the 15-category taxonomy, see **[Introduct
 - [When Do LLMs Need Retrieval Augmentation? Mitigating LLMs’ Overconfidence Helps Retrieval Augmentation](https://aclanthology.org/2024.findings-acl.675.pdf)
 
 ---
-
-## Maintenance notes
-
-- The original 15 categories remain available within five parent groups.
-- Original paper occurrences and source categories are preserved in `data/papers-backup.json` and traced through `data/alignment.csv`.
-- Primary category moves are proposed editorial corrections; secondary categories document overlapping research themes.
-- The two previously missing paper links now point to official ACL Anthology records; linked code repositories are documented in the cited papers.
-- Publication venues are shown for these two newly verified references; other records retain their previous metadata until verified.
-- This inventory is based on the supplied README and prior migration snapshot; compare with GitHub `main` before merging.
